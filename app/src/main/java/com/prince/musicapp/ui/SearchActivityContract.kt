@@ -9,6 +9,6 @@ interface SearchActivityContract {
     }
 
     interface SearchPresenter : BasePresenter {
-
+        fun searchQuery(query:String)
     }
 }
