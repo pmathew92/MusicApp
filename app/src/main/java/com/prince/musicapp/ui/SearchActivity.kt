@@ -7,15 +7,19 @@ import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.Toast
 import com.prince.musicapp.R
+import com.prince.musicapp.model.Result
 import kotlinx.android.synthetic.main.activity_search.*
 import java.util.*
 
 
 class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
+    private var songList: List<Result> = ArrayList()
     override lateinit var presenter: SearchActivityContract.SearchPresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +29,8 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
         supportActionBar?.setIcon(R.drawable.music_symbol)
 
         SearchPresenterImpl(this)
+        Log.d("PLING", this.window.decorView.height.toString())
+        Log.d("PLING", view_pager.measuredHeight.toString())
 
         et_search.addTextChangedListener(object : TextWatcher {
 
@@ -36,6 +42,17 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
+
+        val vto = view_pager.getViewTreeObserver()
+        vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                view_pager.getViewTreeObserver().removeOnGlobalLayoutListener(this)
+                val width = view_pager.getMeasuredWidth()
+                val height = view_pager.getMeasuredHeight()
+                Log.d("PLING", "${height}")
+            }
+        })
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -52,6 +69,14 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun setSongsCount(count: Int) {
+        tv_total_songs.text = "All Songs - ${count}"
+    }
+
+    override fun setSongResults(songs: List<Result>) {
+        songList = songs
     }
 
     private fun setupViewPager() {

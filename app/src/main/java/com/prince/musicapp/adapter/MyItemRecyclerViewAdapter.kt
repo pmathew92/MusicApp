@@ -1,16 +1,14 @@
 package com.prince.musicapp.adapter
 
+
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.prince.musicapp.R
-
-
+import com.prince.musicapp.model.Result
 import com.prince.musicapp.ui.ItemFragment.OnListFragmentInteractionListener
-import com.prince.musicapp.ui.dummy.DummyContent.DummyItem
-
 import kotlinx.android.synthetic.main.fragment_item.view.*
 
 /**
@@ -19,7 +17,7 @@ import kotlinx.android.synthetic.main.fragment_item.view.*
  * TODO: Replace the implementation with code for your data type.
  */
 class MyItemRecyclerViewAdapter(
-        private val mValues: List<DummyItem>,
+        private val mValues: List<Result>,
         private val mListener: OnListFragmentInteractionListener?)
     : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
 
@@ -27,7 +25,7 @@ class MyItemRecyclerViewAdapter(
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as DummyItem
+            val item = v.tag as Result
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
             mListener?.onListFragmentInteraction(item)
@@ -42,23 +40,29 @@ class MyItemRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.id
-        holder.mContentView.text = item.content
+        holder.bindData(item)
 
-        with(holder.mView) {
-            tag = item
-            setOnClickListener(mOnClickListener)
-        }
+
+//        GlideApp.with()
+//                .load(model.image)
+//                .dontAnimate()
+//                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                .placeholder(R.drawable.placeholder)
+//                .centerCrop()
+//                .into(image)
     }
 
     override fun getItemCount(): Int = mValues.size
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView = mView.item_number
-        val mContentView: TextView = mView.content
+        val mTrackName = mView.tv_track_name
+        val mCardView = mView.layout_track
+        val mTrackImage = mView.iv_track_image
+        val mArtist = mView.tv_artist_name
+        val mAlbum = mView.tv_album_name
 
-        override fun toString(): String {
-            return super.toString() + " '" + mContentView.text + "'"
+        fun bindData(item: Result) {
+            mTrackName.text = item.getTrackName()
         }
     }
 }

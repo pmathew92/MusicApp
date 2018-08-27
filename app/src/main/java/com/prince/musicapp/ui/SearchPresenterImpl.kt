@@ -1,6 +1,6 @@
 package com.prince.musicapp.ui
 
-import android.util.Log
+import com.prince.musicapp.model.ApiResponse
 import com.prince.musicapp.network.NetworkClient
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
@@ -22,6 +22,26 @@ class SearchPresenterImpl(val view: SearchActivity) : SearchActivityContract.Sea
 
     override fun searchQuery(query: String) {
         publishSubject.onNext(query)
+        publishSubject
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .distinctUntilChanged()
+                .switchMap { NetworkClient.getNetworkService().getSongs(it) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({ response ->
+                    (this::handleResult)(response)
+                },
+                        { error ->
+                            error.printStackTrace()
+                        })
+    }
+
+
+    private fun handleResult(response: ApiResponse) {
+        view.setSongsCount(response.getResultCount())
+        response.getResults()?.let { view.setSongResults(it) }
+    }
+
+//    private fun fetchSearchResults() {
 //        publishSubject
 //                .debounce(300, TimeUnit.MILLISECONDS)
 //                .distinctUntilChanged()
@@ -31,17 +51,5 @@ class SearchPresenterImpl(val view: SearchActivity) : SearchActivityContract.Sea
 //                        { er ->
 //                            er.printStackTrace()
 //                        })
-    }
-
-    private fun fetchSearchResults() {
-        publishSubject
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .distinctUntilChanged()
-                .switchMap { NetworkClient.getNetworkService().getSongs(it) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ text -> Log.d("PLING", text.getResultCount().toString()) },
-                        { er ->
-                            er.printStackTrace()
-                        })
-    }
+//    }
 }
