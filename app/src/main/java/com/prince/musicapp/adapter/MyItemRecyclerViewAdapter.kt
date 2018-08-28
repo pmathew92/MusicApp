@@ -1,11 +1,13 @@
 package com.prince.musicapp.adapter
 
 
+import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
 import com.prince.musicapp.ui.ItemFragment.OnListFragmentInteractionListener
@@ -18,19 +20,8 @@ import kotlinx.android.synthetic.main.fragment_item.view.*
  */
 class MyItemRecyclerViewAdapter(
         private val mValues: List<Result>,
-        private val mListener: OnListFragmentInteractionListener?)
+        private val mContext: Context)
     : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
-
-    private val mOnClickListener: View.OnClickListener
-
-    init {
-        mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as Result
-            // Notify the active callbacks interface (the activity, if the fragment is attached to
-            // one) that an item has been selected.
-            mListener?.onListFragmentInteraction(item)
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -41,28 +32,28 @@ class MyItemRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
         holder.bindData(item)
-
-
-//        GlideApp.with()
-//                .load(model.image)
-//                .dontAnimate()
-//                .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                .placeholder(R.drawable.placeholder)
-//                .centerCrop()
-//                .into(image)
     }
 
     override fun getItemCount(): Int = mValues.size
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mTrackName = mView.tv_track_name
-        val mCardView = mView.layout_track
-        val mTrackImage = mView.iv_track_image
-        val mArtist = mView.tv_artist_name
-        val mAlbum = mView.tv_album_name
+        private val mTrackName = mView.tv_track_name!!
+        val mCardView = mView.layout_track!!
+        private val mTrackImage = mView.iv_track_image!!
+        private val mArtist = mView.tv_artist_name!!
+        private val mAlbum = mView.tv_album_name!!
 
         fun bindData(item: Result) {
             mTrackName.text = item.getTrackName()
+            mArtist.text = item.getArtistName()
+            mAlbum.text = item.getCollectionCensoredName()
+            GlideApp.with(mContext)
+                    .load(item.getArtworkUrl100())
+                    .dontAnimate()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.placeholder)
+                    .centerCrop()
+                    .into(mTrackImage)
         }
     }
 }

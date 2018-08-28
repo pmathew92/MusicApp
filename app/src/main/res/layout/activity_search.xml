@@ -57,5 +57,10 @@
         android:layout_marginEnd="12dp"
         android:layout_marginStart="12dp" />
 
-
+    <LinearLayout
+        android:id="@+id/slider_dots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical|center_horizontal"
+        android:orientation="horizontal" />
 </LinearLayout>

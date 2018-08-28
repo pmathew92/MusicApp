@@ -1,10 +1,11 @@
 package com.prince.musicapp.model
 
+import android.os.Parcel
+import android.os.Parcelable
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
-class Result {
-
+class Result() :Parcelable {
     @SerializedName("wrapperType")
     @Expose
     private var wrapperType: String? = null
@@ -134,6 +135,52 @@ class Result {
     @SerializedName("description")
     @Expose
     private var description: String? = null
+
+    constructor(parcel: Parcel) : this() {
+        wrapperType = parcel.readString()
+        kind = parcel.readString()
+        collectionId = parcel.readInt()
+        trackId = parcel.readInt()
+        artistName = parcel.readString()
+        collectionName = parcel.readString()
+        trackName = parcel.readString()
+        collectionCensoredName = parcel.readString()
+        trackCensoredName = parcel.readString()
+        collectionArtistId = parcel.readInt()
+        collectionArtistViewUrl = parcel.readString()
+        collectionViewUrl = parcel.readString()
+        trackViewUrl = parcel.readString()
+        previewUrl = parcel.readString()
+        artworkUrl30 = parcel.readString()
+        artworkUrl60 = parcel.readString()
+        artworkUrl100 = parcel.readString()
+        collectionPrice = parcel.readDouble()
+        trackPrice = parcel.readDouble()
+        trackRentalPrice = parcel.readDouble()
+        collectionHdPrice = parcel.readDouble()
+        trackHdPrice = parcel.readDouble()
+        trackHdRentalPrice = parcel.readDouble()
+        releaseDate = parcel.readString()
+        collectionExplicitness = parcel.readString()
+        trackExplicitness = parcel.readString()
+        discCount = parcel.readInt()
+        discNumber = parcel.readInt()
+        trackCount = parcel.readInt()
+        trackNumber = parcel.readInt()
+        trackTimeMillis = parcel.readInt()
+        country = parcel.readString()
+        currency = parcel.readString()
+        primaryGenreName = parcel.readString()
+        contentAdvisoryRating = parcel.readString()
+        shortDescription = parcel.readString()
+        longDescription = parcel.readString()
+        hasITunesExtras = parcel.readByte() != 0.toByte()
+        artistId = parcel.readInt()
+        amgArtistId = parcel.readInt()
+        artistViewUrl = parcel.readString()
+        copyright = parcel.readString()
+        description = parcel.readString()
+    }
 
     fun getWrapperType(): String? {
         return wrapperType
@@ -477,5 +524,66 @@ class Result {
 
     fun setDescription(description: String) {
         this.description = description
+    }
+
+    override fun describeContents(): Int {
+        return hashCode()
+    }
+
+    override fun writeToParcel(dest: Parcel?, flags: Int) {
+        dest?.writeString(wrapperType)
+        dest?.writeString(kind)
+        dest?.writeInt(collectionId)
+        dest?.writeInt(trackId)
+        dest?.writeString(artistName)
+        dest?.writeString(collectionName)
+        dest?.writeString(trackName)
+        dest?.writeString(collectionCensoredName)
+        dest?.writeString(trackCensoredName)
+        dest?.writeInt(collectionArtistId)
+        dest?.writeString(collectionArtistViewUrl)
+        dest?.writeString(collectionViewUrl)
+        dest?.writeString(trackViewUrl)
+        dest?.writeString(previewUrl)
+        dest?.writeString(artworkUrl30)
+        dest?.writeString(artworkUrl60)
+        dest?.writeString(artworkUrl100)
+        dest?.writeDouble(collectionPrice)
+        dest?.writeDouble(trackPrice)
+        dest?.writeDouble(trackRentalPrice)
+        dest?.writeDouble(collectionHdPrice)
+        dest?.writeDouble(trackHdPrice)
+        dest?.writeDouble(trackHdRentalPrice)
+        dest?.writeString(releaseDate)
+        dest?.writeString(collectionExplicitness)
+        dest?.writeString(trackExplicitness)
+        dest?.writeInt(discCount)
+        dest?.writeInt(discNumber)
+        dest?.writeInt(trackCount)
+        dest?.writeInt(trackNumber)
+        dest?.writeInt(trackTimeMillis)
+        dest?.writeString(country)
+        dest?.writeString(currency)
+        dest?.writeString(primaryGenreName)
+        dest?.writeString(contentAdvisoryRating)
+        dest?.writeString(shortDescription)
+        dest?.writeString(longDescription)
+        dest?.writeByte(if (hasITunesExtras) 1 else 0)
+        dest?.writeInt(artistId)
+        dest?.writeInt(amgArtistId)
+        dest?.writeString(artistViewUrl)
+        dest?.writeString(copyright)
+        dest?.writeString(description)
+    }
+
+
+    companion object CREATOR : Parcelable.Creator<Result> {
+        override fun createFromParcel(parcel: Parcel): Result {
+            return Result(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Result?> {
+            return arrayOfNulls(size)
+        }
     }
 }
