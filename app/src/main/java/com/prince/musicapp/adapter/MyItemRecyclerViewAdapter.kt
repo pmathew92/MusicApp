@@ -2,6 +2,7 @@ package com.prince.musicapp.adapter
 
 
 import android.content.Context
+import android.content.Intent
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
 import com.prince.musicapp.ui.ItemFragment.OnListFragmentInteractionListener
+import com.prince.musicapp.ui.PlayerActivity
 import kotlinx.android.synthetic.main.fragment_item.view.*
 
 /**
@@ -54,6 +56,11 @@ class MyItemRecyclerViewAdapter(
                     .placeholder(R.drawable.placeholder)
                     .centerCrop()
                     .into(mTrackImage)
+            mCardView.setOnClickListener {
+                val intent= Intent(mContext,PlayerActivity::class.java)
+                intent.putExtra("audio_track",item)
+                mContext.startActivity(intent)
+            }
         }
     }
 }

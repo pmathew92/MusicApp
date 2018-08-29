@@ -3,4 +3,5 @@
     <string name="summary">Listen to your favourite\n  songs from youtube</string>
     <string name="search_text">Search music,title,artist etc.</string>
     <string name="favourites">Favourites</string>
+    <string name="_0_00">0:00</string>
 </resources>
