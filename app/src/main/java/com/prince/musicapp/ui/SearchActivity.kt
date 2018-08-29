@@ -1,5 +1,6 @@
 package com.prince.musicapp.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
@@ -16,12 +17,12 @@ import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.Toast
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
 import kotlinx.android.synthetic.main.activity_search.*
 import java.util.*
 import kotlin.collections.ArrayList
+import android.widget.ArrayAdapter
 
 
 class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, ItemFragment.OnListFragmentInteractionListener {
@@ -34,8 +35,15 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
         setContentView(R.layout.activity_search)
         setSupportActionBar(toolbar)
         supportActionBar?.setIcon(R.drawable.music_symbol)
-
+        val colors = arrayOf(
+                "Red", "Green", "Blue", "Maroon", "Magenta",
+                "Gold", "GreenYellow"
+        )
         SearchPresenterImpl(this)
+
+        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, colors)
+        et_search.setAdapter(adapter)
+        et_search.threshold = 1
         et_search.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(editable: Editable) {
@@ -68,7 +76,7 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.favorites -> {
-                Toast.makeText(applicationContext, "Menu clicked", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(applicationContext, FavouritesActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -94,6 +102,7 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
 
     private fun setupViewPager(partitionedList: LinkedList<List<Result>>) {
         val viewPagerAdapter = ViewPagerAdapter(supportFragmentManager)
+        slider_dots.removeAllViewsInLayout()
         for (i in 0 until partitionedList.size) {
             val mFragment = ItemFragment()
             val bundle = Bundle()

@@ -5,6 +5,8 @@ import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.SeekBar
+import android.widget.Toast
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -21,7 +23,9 @@ import kotlinx.android.synthetic.main.activity_player.*
 import java.util.concurrent.TimeUnit
 
 
-class PlayerActivity : AppCompatActivity(), Player.EventListener {
+class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract.PlayerView {
+    override lateinit var presenter: PlayerContract.PlayerPresenter
+
     private var player: SimpleExoPlayer? = null
     private var playWhenReady: Boolean = true
     private var currentWindow: Int = 0
@@ -35,16 +39,36 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener {
         item = intent.getParcelableExtra("audio_track")
         setData()
         layout_play_pause.setOnClickListener {
-            setPlayPause()
+            if (isPlaying) setPause()
+            else setPlay()
         }
+
+        seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                player?.seekTo(progress.toLong())
+                seek_bar.progress = progress
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
     }
 
-    private fun setPlayPause() {
-        isPlaying = !isPlaying
+    private fun setPlay() {
+        isPlaying = true
         player?.playWhenReady = isPlaying
-        if (isPlaying) iv_play_pause.setImageResource(R.drawable.pause)
-        else iv_play_pause.setImageResource(R.drawable.play)
+        iv_play_pause.setImageResource(R.drawable.pause)
     }
+
+    private fun setPause() {
+        isPlaying = false
+        player?.playWhenReady = isPlaying
+        iv_play_pause.setImageResource(R.drawable.play)
+    }
+
 
     private fun setData() {
         tv_track.text = item.getTrackName()
@@ -59,19 +83,18 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener {
                 .into(iv_image)
     }
 
-    private val onEverySecond = object : Runnable {
+    private val updateSeekBar = object : Runnable {
 
         override fun run() {
             val progress: Int = (player?.currentPosition!!).toInt()
             seek_bar.progress = progress
             tv_current_duration.text = String.format("%d:%02d",
                     player?.currentPosition?.let { TimeUnit.MILLISECONDS.toMinutes(it) },
-                    player?.currentPosition?.let { TimeUnit.MILLISECONDS.toSeconds(it) }?.minus(TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(player?.duration!!)))
+                    player?.currentPosition?.let { TimeUnit.MILLISECONDS.toSeconds(it) }?.minus(TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(player?.currentPosition!!)))
             )
 
             if (player?.currentPosition!! >= player?.duration!!) {
-                setPlayPause()
-                player?.seekTo(0L)
+                setPause()
             }
             seek_bar.postDelayed(this, 1000)
         }
@@ -134,6 +157,7 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener {
     }
 
     override fun onPlayerError(error: ExoPlaybackException?) {
+        Toast.makeText(this, "Error playing this track", Toast.LENGTH_SHORT).show()
     }
 
     override fun onLoadingChanged(isLoading: Boolean) {
@@ -162,7 +186,7 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener {
                 player?.duration?.let { TimeUnit.MILLISECONDS.toSeconds(it) }?.minus(TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(player?.duration!!)))
         )
         seek_bar.max = (player?.duration)?.toInt()!!
-        seek_bar.postDelayed(onEverySecond, 1000)
+        seek_bar.postDelayed(updateSeekBar, 1000)
     }
 
 
@@ -185,6 +209,7 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener {
             playbackPosition = player?.currentPosition!!
             currentWindow = player?.currentWindowIndex!!
             playWhenReady = player?.playWhenReady!!
+            seek_bar.removeCallbacks(updateSeekBar)
             player?.release()
             player = null
         }

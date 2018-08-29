@@ -1,6 +1,5 @@
 package com.prince.musicapp.adapter
 
-
 import android.content.Context
 import android.content.Intent
 import android.support.v7.widget.RecyclerView
@@ -11,18 +10,12 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
-import com.prince.musicapp.ui.ItemFragment.OnListFragmentInteractionListener
 import com.prince.musicapp.ui.PlayerActivity
 import kotlinx.android.synthetic.main.fragment_item.view.*
 
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- */
-class MyItemRecyclerViewAdapter(
-        private val mValues: List<Result>,
-        private val mContext: Context)
-    : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
+class FavouritesAdapter(private val mValues: MutableList<Result>,
+                        private val mContext: Context) :
+        RecyclerView.Adapter<FavouritesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -37,9 +30,9 @@ class MyItemRecyclerViewAdapter(
 
     override fun getItemCount(): Int = mValues.size
 
-    inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
+    inner class ViewHolder(mView: View) : RecyclerView.ViewHolder(mView) {
         private val mTrackName = mView.tv_track_name!!
-        val mCardView = mView.layout_track!!
+        private val mCardView = mView.layout_track!!
         private val mTrackImage = mView.iv_track_image!!
         private val mArtist = mView.tv_artist_name!!
         private val mAlbum = mView.tv_album_name!!
@@ -61,5 +54,10 @@ class MyItemRecyclerViewAdapter(
                 mContext.startActivity(intent)
             }
         }
+    }
+
+    fun removeItem(position: Int) {
+        mValues.removeAt(position)
+        notifyItemRemoved(position)
     }
 }
