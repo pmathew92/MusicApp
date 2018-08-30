@@ -10,6 +10,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
+import com.prince.musicapp.ui.FavouritesActivity
 import com.prince.musicapp.ui.PlayerActivity
 import kotlinx.android.synthetic.main.fragment_item.view.*
 
@@ -17,6 +18,7 @@ class FavouritesAdapter(private val mValues: MutableList<Result>,
                         private val mContext: Context) :
         RecyclerView.Adapter<FavouritesAdapter.ViewHolder>() {
 
+    private val listener: ItemListener = mContext as FavouritesActivity
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.fragment_item, parent, false)
@@ -57,7 +59,12 @@ class FavouritesAdapter(private val mValues: MutableList<Result>,
     }
 
     fun removeItem(position: Int) {
+        listener.removeItem(mValues[position])
         mValues.removeAt(position)
         notifyItemRemoved(position)
+    }
+
+    interface ItemListener {
+        fun removeItem(item: Result)
     }
 }

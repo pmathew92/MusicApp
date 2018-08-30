@@ -11,18 +11,14 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
-import com.prince.musicapp.ui.ItemFragment.OnListFragmentInteractionListener
 import com.prince.musicapp.ui.PlayerActivity
 import kotlinx.android.synthetic.main.fragment_item.view.*
 
-/**
- * [RecyclerView.Adapter] that can display a [DummyItem] and makes a call to the
- * specified [OnListFragmentInteractionListener].
- */
-class MyItemRecyclerViewAdapter(
-        private val mValues: List<Result>,
-        private val mContext: Context)
+
+class MyItemRecyclerViewAdapter(private val mValues: List<Result>, private val mContext: Context)
     : RecyclerView.Adapter<MyItemRecyclerViewAdapter.ViewHolder>() {
+
+    private var rowIndex = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -48,6 +44,10 @@ class MyItemRecyclerViewAdapter(
             mTrackName.text = item.getTrackName()
             mArtist.text = item.getArtistName()
             mAlbum.text = item.getCollectionName()
+
+            if (item.getSelected()) mCardView.setCardBackgroundColor(mContext.resources.getColor(R.color.colorPrimary))
+            else mContext.resources.getColor(android.R.color.white)
+
             GlideApp.with(mContext)
                     .load(item.getArtworkUrl100())
                     .dontAnimate()
@@ -56,6 +56,12 @@ class MyItemRecyclerViewAdapter(
                     .centerCrop()
                     .into(mTrackImage)
             mCardView.setOnClickListener {
+                if (rowIndex != -1) {
+                    mValues[rowIndex].setSelected(false)
+                    notifyDataSetChanged()
+                }
+                mCardView.setCardBackgroundColor(mContext.resources.getColor(R.color.colorPrimary))
+                rowIndex = adapterPosition
                 val intent = Intent(mContext, PlayerActivity::class.java)
                 intent.putExtra("audio_track", item)
                 mContext.startActivity(intent)

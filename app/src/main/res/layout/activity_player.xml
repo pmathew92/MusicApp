@@ -1,38 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9F9F9"
     tools:context=".ui.PlayerActivity">
 
-    <FrameLayout
-        android:id="@+id/layout_player"
+    <ImageView
+        android:id="@+id/iv_image"
         android:layout_width="match_parent"
-        android:layout_height="300dp">
-
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/audio_player"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:hide_on_touch="false"
-            app:show_timeout="0"
-            app:use_controller="false" />
-
-        <ImageView
-            android:id="@+id/iv_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            tools:ignore="ContentDescription" />
-    </FrameLayout>
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        tools:ignore="ContentDescription" />
 
     <SeekBar
         android:id="@+id/seek_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/layout_player"
+        android:layout_below="@id/iv_image"
         android:layout_marginBottom="10dp"
         android:layout_marginEnd="20dp"
         android:layout_marginStart="20dp"

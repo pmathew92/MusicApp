@@ -7,6 +7,6 @@ import retrofit2.http.Query
 
 interface NetworkService {
 
-    @GET("search")
+    @GET("search?limit=20")
     fun getSongs(@Query("term") term: String): Observable<ApiResponse>
 }

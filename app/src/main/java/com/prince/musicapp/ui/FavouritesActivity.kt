@@ -7,13 +7,16 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import com.prince.musicapp.R
 import com.prince.musicapp.adapter.FavouritesAdapter
+import com.prince.musicapp.model.Result
+import com.prince.musicapp.repository.datasource.FavouriteDataSource
 import kotlinx.android.synthetic.main.activity_favourites.*
 import kotlinx.android.synthetic.main.content_favourites.*
 
 
-class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesView {
+class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesView, FavouritesAdapter.ItemListener {
     override lateinit var presenter: FavouritesContract.FavouritesPresenter
     private var mAdapter: FavouritesAdapter? = null
+    private var songCount = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_favourites)
@@ -22,17 +25,17 @@ class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesVie
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }
-        FavouritesPresenterImpl(this)
+        FavouritesPresenterImpl(this, FavouriteDataSource(this))
 
         rv_favourites.setHasFixedSize(true)
         rv_favourites.itemAnimator = DefaultItemAnimator()
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
         itemTouchHelper.attachToRecyclerView(rv_favourites)
-//        rv_favourites.adapter = FavouritesAdapter(List<Result> ,this)
+        presenter.loadFavourites()
     }
 
 
-    private val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ItemTouchHelper.DOWN or ItemTouchHelper.UP) {
+    private val simpleItemTouchCallback: ItemTouchHelper.SimpleCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
             return false
@@ -44,4 +47,19 @@ class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesVie
         }
     }
 
+    override fun loadFavourites(result: List<Result>) {
+        mAdapter = FavouritesAdapter(result as MutableList<Result>, this)
+        rv_favourites.adapter = mAdapter
+        setSongCount(result.size)
+    }
+
+    private fun setSongCount(count: Int) {
+        songCount = count
+        tv_total_favourites.text = "All Songs - ${count}"
+    }
+
+    override fun removeItem(item: Result) {
+        setSongCount(--songCount)
+        presenter.removeItem(item)
+    }
 }

@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.fragment_item_list.*
  */
 class ItemFragment : Fragment() {
 
-    private var listener: OnListFragmentInteractionListener? = null
     private var itemList: List<Result> = ArrayList()
 
     private var adapter: MyItemRecyclerViewAdapter? = null
@@ -40,32 +39,11 @@ class ItemFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnListFragmentInteractionListener) {
-            listener = context
-        } else {
-            throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
-        }
     }
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson
-     * [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-    interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: Result?)
-    }
 
 }

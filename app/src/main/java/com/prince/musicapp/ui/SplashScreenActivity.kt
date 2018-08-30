@@ -18,14 +18,6 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
 
         Handler().postDelayed({
-            //            searchText.animate()
-//                    .translationY(0f)
-//                    .alpha(0.0f)
-//                    .setListener(object : AnimatorListenerAdapter() {
-//                        override fun onAnimationEnd(animation: Animator?) {
-//                            super.onAnimationEnd(animation)
-//                        }
-//                    })
             searchText.visibility = VISIBLE
 
         }, 2000)

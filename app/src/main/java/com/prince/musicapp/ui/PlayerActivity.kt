@@ -19,11 +19,13 @@ import com.google.android.exoplayer2.util.Util
 import com.prince.musicapp.GlideApp
 import com.prince.musicapp.R
 import com.prince.musicapp.model.Result
+import com.prince.musicapp.repository.datasource.FavouriteDataSource
 import kotlinx.android.synthetic.main.activity_player.*
 import java.util.concurrent.TimeUnit
 
 
 class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract.PlayerView {
+
     override lateinit var presenter: PlayerContract.PlayerPresenter
 
     private var player: SimpleExoPlayer? = null
@@ -33,14 +35,32 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
     private var isPlaying = true
 
     private lateinit var item: Result
+
+    private var isFavourite: Boolean = false
+
+    override fun isFavourite() {
+        isFavourite = true
+        iv_add_favourites.setImageResource(R.drawable.aded_favourites)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
+
         item = intent.getParcelableExtra("audio_track")
+
+        PlayerPresenterImpl(this, FavouriteDataSource(this))
+        presenter.checkIfAlreadyFavourite(item)
+
         setData()
+
         layout_play_pause.setOnClickListener {
             if (isPlaying) setPause()
             else setPlay()
+        }
+
+        iv_list.setOnClickListener {
+            finish()
         }
 
         seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -55,6 +75,16 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
+
+
+        iv_add_favourites.setOnClickListener {
+            if (isFavourite) Toast.makeText(applicationContext, "Already Added", Toast.LENGTH_SHORT).show()
+            else {
+                presenter.addToFavourite(item)
+                iv_add_favourites.setImageResource(R.drawable.aded_favourites)
+                Toast.makeText(applicationContext, "Added to favourites", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setPlay() {
@@ -105,7 +135,7 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
                 DefaultRenderersFactory(this),
                 DefaultTrackSelector(), DefaultLoadControl())
 
-        audio_player.player = player
+//        audio_player.player = player
 
 
         player?.playWhenReady = playWhenReady
@@ -131,7 +161,6 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
 
     public override fun onResume() {
         super.onResume()
-        hideSystemUi()
         if (Util.SDK_INT <= 23 || player == null) {
             initializePlayer()
         }
@@ -139,12 +168,12 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
 
     @SuppressLint("InlinedApi")
     private fun hideSystemUi() {
-        audio_player.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+//        audio_player.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+//                or View.SYSTEM_UI_FLAG_FULLSCREEN
+//                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {

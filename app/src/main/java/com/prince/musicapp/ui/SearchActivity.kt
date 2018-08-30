@@ -11,39 +11,44 @@ import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.LinearLayout
 import com.prince.musicapp.R
+import com.prince.musicapp.model.AutocompleteSuggestions
 import com.prince.musicapp.model.Result
+import com.prince.musicapp.repository.datasource.SuggestionDataSource
 import kotlinx.android.synthetic.main.activity_search.*
 import java.util.*
 import kotlin.collections.ArrayList
-import android.widget.ArrayAdapter
 
 
-class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, ItemFragment.OnListFragmentInteractionListener {
+class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
     private var songList: List<Result> = ArrayList()
     override lateinit var presenter: SearchActivityContract.SearchPresenter
     private var dots: Array<ImageView?>? = null
+    private var adapter: ArrayAdapter<AutocompleteSuggestions>? = null
 
+    private var result: MutableList<AutocompleteSuggestions> = ArrayList()
+    private var screenHeight = 0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search)
         setSupportActionBar(toolbar)
         supportActionBar?.setIcon(R.drawable.music_symbol)
-        val colors = arrayOf(
-                "Red", "Green", "Blue", "Maroon", "Magenta",
-                "Gold", "GreenYellow"
-        )
-        SearchPresenterImpl(this)
 
-        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, colors)
+        SearchPresenterImpl(this, SuggestionDataSource(this))
+
+        adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, result)
+        adapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         et_search.setAdapter(adapter)
         et_search.threshold = 1
+
+        presenter.fetchSuggestion()
+
         et_search.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(editable: Editable) {
@@ -55,16 +60,25 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        val vto = view_pager.getViewTreeObserver()
+        val vto = view_pager.viewTreeObserver
         vto.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                view_pager.getViewTreeObserver().removeOnGlobalLayoutListener(this)
-                val width = view_pager.getMeasuredWidth()
-                val height = view_pager.getMeasuredHeight()
-                Log.d("PLING", "${height}")
+                view_pager.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                val height = view_pager.measuredHeight
+
+                val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
+                screenHeight = (height * .8).toInt()
+                params.height = screenHeight
+                view_pager.layoutParams = params
             }
         })
+    }
 
+
+    override fun loadSuggestions(result: List<AutocompleteSuggestions>) {
+        this.result.addAll(result as MutableList<AutocompleteSuggestions>)
+        adapter?.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -83,13 +97,17 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
         }
     }
 
+
     override fun setSongsCount(count: Int) {
         tv_total_songs.text = "All Songs - ${count}"
     }
 
     override fun setSongResults(songs: List<Result>) {
+        updateSuggestionList()
         songList = songs
-        val partitionSize = 10
+        var partitionSize = 4
+        if (screenHeight > 0)
+            partitionSize = screenHeight / (112 * 2)
         val partitions = LinkedList<List<Result>>()
         var i = 0
         while (i < songList.size) {
@@ -98,6 +116,14 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
             i += partitionSize
         }
         setupViewPager(partitions)
+    }
+
+    private fun updateSuggestionList() {
+        if (!et_search.text.isEmpty() && et_search.text.length > 3) {
+            presenter.addSuggestion(AutocompleteSuggestions(et_search.text.toString()))
+            result.add(AutocompleteSuggestions(et_search.text.toString()))
+            adapter?.notifyDataSetChanged()
+        }
     }
 
     private fun setupViewPager(partitionedList: LinkedList<List<Result>>) {
@@ -123,7 +149,6 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
             params.setMargins(8, 0, 8, 0)
 
             slider_dots.addView(dots!![i], params)
-
         }
         dots!![0]?.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.tab_selected));
         view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
@@ -158,7 +183,4 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView, I
         }
     }
 
-    override fun onListFragmentInteraction(item: Result?) {
-
-    }
 }

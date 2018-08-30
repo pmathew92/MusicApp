@@ -1,6 +1,7 @@
 package com.prince.musicapp.model
 
 import android.arch.persistence.room.Entity
+import android.arch.persistence.room.Ignore
 import android.arch.persistence.room.PrimaryKey
 import android.os.Parcel
 import android.os.Parcelable
@@ -35,7 +36,8 @@ class Result() : Parcelable {
     @SerializedName("artworkUrl100")
     @Expose
     private var artworkUrl100: String? = null
-
+    @Ignore
+    private var selected = false
 
     constructor(parcel: Parcel) : this() {
         trackId = parcel.readInt()
@@ -45,7 +47,7 @@ class Result() : Parcelable {
         trackViewUrl = parcel.readString()
         previewUrl = parcel.readString()
         artworkUrl100 = parcel.readString()
-
+        selected = parcel.readInt() != 0
     }
 
 
@@ -69,6 +71,10 @@ class Result() : Parcelable {
         return collectionName
     }
 
+    fun getSelected(): Boolean {
+        return selected
+    }
+
     fun setCollectionName(collectionName: String) {
         this.collectionName = collectionName
     }
@@ -79,6 +85,10 @@ class Result() : Parcelable {
 
     fun setTrackName(trackName: String) {
         this.trackName = trackName
+    }
+
+    fun setSelected(selected: Boolean) {
+        this.selected = selected
     }
 
 
@@ -115,6 +125,7 @@ class Result() : Parcelable {
         dest?.writeString(trackViewUrl)
         dest?.writeString(previewUrl)
         dest?.writeString(artworkUrl100)
+        dest?.writeInt(if (selected) 1 else 0)
     }
 
 
