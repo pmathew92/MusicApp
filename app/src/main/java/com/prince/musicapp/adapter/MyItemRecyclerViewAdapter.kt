@@ -46,7 +46,7 @@ class MyItemRecyclerViewAdapter(private val mValues: List<Result>, private val m
             mAlbum.text = item.getCollectionName()
 
             if (item.getSelected()) mCardView.setCardBackgroundColor(mContext.resources.getColor(R.color.colorPrimary))
-            else mContext.resources.getColor(android.R.color.white)
+            else mCardView.setCardBackgroundColor(mContext.resources.getColor(android.R.color.white))
 
             GlideApp.with(mContext)
                     .load(item.getArtworkUrl100())
@@ -56,15 +56,13 @@ class MyItemRecyclerViewAdapter(private val mValues: List<Result>, private val m
                     .centerCrop()
                     .into(mTrackImage)
             mCardView.setOnClickListener {
-                if (rowIndex != -1) {
-                    mValues[rowIndex].setSelected(false)
-                    notifyDataSetChanged()
-                }
-                mCardView.setCardBackgroundColor(mContext.resources.getColor(R.color.colorPrimary))
+                if (rowIndex != -1) mValues[rowIndex].setSelected(false)
+                mValues[adapterPosition].setSelected(true)
                 rowIndex = adapterPosition
                 val intent = Intent(mContext, PlayerActivity::class.java)
                 intent.putExtra("audio_track", item)
                 mContext.startActivity(intent)
+                notifyDataSetChanged()
             }
         }
     }

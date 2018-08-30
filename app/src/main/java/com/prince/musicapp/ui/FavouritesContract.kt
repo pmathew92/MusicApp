@@ -11,7 +11,6 @@ interface FavouritesContract {
     }
 
     interface FavouritesPresenter : BasePresenter {
-        fun loadFavourites()
         fun removeItem(item: Result)
     }
 }

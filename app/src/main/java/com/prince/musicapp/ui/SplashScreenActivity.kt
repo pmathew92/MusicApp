@@ -24,7 +24,6 @@ class SplashScreenActivity : AppCompatActivity() {
 
         searchText.setOnClickListener {
             startActivity(Intent(applicationContext, SearchActivity::class.java))
-            finish()
         }
     }
 }

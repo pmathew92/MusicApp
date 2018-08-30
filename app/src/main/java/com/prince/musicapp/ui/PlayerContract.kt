@@ -8,6 +8,8 @@ import com.prince.musicapp.model.Result
 interface PlayerContract {
     interface PlayerView : BaseView<PlayerPresenter> {
         fun isFavourite()
+        fun initializePlayer()
+        fun releasePlayer()
     }
 
     interface PlayerPresenter : BasePresenter {

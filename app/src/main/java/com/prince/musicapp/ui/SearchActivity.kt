@@ -47,7 +47,7 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
         et_search.setAdapter(adapter)
         et_search.threshold = 1
 
-        presenter.fetchSuggestion()
+        presenter.subscribe()
 
         et_search.addTextChangedListener(object : TextWatcher {
 
@@ -107,7 +107,7 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
         songList = songs
         var partitionSize = 4
         if (screenHeight > 0)
-            partitionSize = screenHeight / (112 * 2)
+            partitionSize = screenHeight / (122 * 2)
         val partitions = LinkedList<List<Result>>()
         var i = 0
         while (i < songList.size) {
@@ -150,7 +150,7 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
 
             slider_dots.addView(dots!![i], params)
         }
-        dots!![0]?.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.tab_selected));
+        dots!![0]?.setImageDrawable(ContextCompat.getDrawable(applicationContext, R.drawable.tab_selected));
         view_pager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {}
 
@@ -183,4 +183,9 @@ class SearchActivity : AppCompatActivity(), SearchActivityContract.SearchView {
         }
     }
 
+    override fun onDestroy() {
+        presenter.unSubscribe()
+        super.onDestroy()
+    }
 }
+

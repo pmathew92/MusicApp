@@ -31,7 +31,7 @@ class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesVie
         rv_favourites.itemAnimator = DefaultItemAnimator()
         val itemTouchHelper = ItemTouchHelper(simpleItemTouchCallback)
         itemTouchHelper.attachToRecyclerView(rv_favourites)
-        presenter.loadFavourites()
+        presenter.subscribe()
     }
 
 
@@ -61,5 +61,10 @@ class FavouritesActivity : AppCompatActivity(), FavouritesContract.FavouritesVie
     override fun removeItem(item: Result) {
         setSongCount(--songCount)
         presenter.removeItem(item)
+    }
+
+    override fun onDestroy() {
+        presenter.unSubscribe()
+        super.onDestroy()
     }
 }

@@ -14,7 +14,6 @@ interface SearchActivityContract {
 
     interface SearchPresenter : BasePresenter {
         fun searchQuery(query: String)
-        fun fetchSuggestion()
-        fun addSuggestion(text:AutocompleteSuggestions)
+        fun addSuggestion(text: AutocompleteSuggestions)
     }
 }

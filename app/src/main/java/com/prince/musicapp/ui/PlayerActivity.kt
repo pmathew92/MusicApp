@@ -88,6 +88,7 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
     }
 
     private fun setPlay() {
+        if (currentWindow == 0) player?.seekTo(0, playbackPosition)
         isPlaying = true
         player?.playWhenReady = isPlaying
         iv_play_pause.setImageResource(R.drawable.pause)
@@ -125,18 +126,17 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
 
             if (player?.currentPosition!! >= player?.duration!!) {
                 setPause()
+                currentWindow = 0
+                playbackPosition = 0
             }
             seek_bar.postDelayed(this, 1000)
         }
     }
 
-    private fun initializePlayer() {
+    override fun initializePlayer() {
         player = ExoPlayerFactory.newSimpleInstance(
                 DefaultRenderersFactory(this),
                 DefaultTrackSelector(), DefaultLoadControl())
-
-//        audio_player.player = player
-
 
         player?.playWhenReady = playWhenReady
         player?.seekTo(currentWindow, playbackPosition)
@@ -149,31 +149,21 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
 
     private fun buildMediaSource(uri: Uri): MediaSource {
         return ExtractorMediaSource.Factory(
-                DefaultHttpDataSourceFactory("exoplayer-codelab")).createMediaSource(uri)
+                DefaultHttpDataSourceFactory("mPlayer")).createMediaSource(uri)
     }
 
     public override fun onStart() {
         super.onStart()
         if (Util.SDK_INT > 23) {
-            initializePlayer()
+            presenter.subscribe()
         }
     }
 
     public override fun onResume() {
         super.onResume()
         if (Util.SDK_INT <= 23 || player == null) {
-            initializePlayer()
+            presenter.subscribe()
         }
-    }
-
-    @SuppressLint("InlinedApi")
-    private fun hideSystemUi() {
-//        audio_player.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
-//                or View.SYSTEM_UI_FLAG_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
     }
 
     override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
@@ -222,18 +212,18 @@ class PlayerActivity : AppCompatActivity(), Player.EventListener, PlayerContract
     public override fun onPause() {
         super.onPause()
         if (Util.SDK_INT <= 23) {
-            releasePlayer()
+            presenter.unSubscribe()
         }
     }
 
     public override fun onStop() {
         super.onStop()
         if (Util.SDK_INT > 23) {
-            releasePlayer()
+            presenter.unSubscribe()
         }
     }
 
-    private fun releasePlayer() {
+    override fun releasePlayer() {
         if (player != null) {
             playbackPosition = player?.currentPosition!!
             currentWindow = player?.currentWindowIndex!!
